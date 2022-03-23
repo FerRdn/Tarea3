@@ -1,0 +1,195 @@
+---
+title: "Red de Co-Gustos"
+author: "Fer Rendón"
+date: "23/03/2022"
+output: html_document
+---
+<style type = "text/css">
+body {
+font-family: Courier New;
+font-size: 11pt;
+}
+</style>
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+#### **Redes dicotómica y pesada**
+
+Para demostrar el proceso de la generación de ambas matrices, lo adjuntaré en seguida.
+
+```{r}
+gustos <- read.csv (choose.files ()) # Archivo co-gustos
+
+row.names (gustos) <- gustos [ , 1] # Asignar col 1 a renglones
+gustos <- gustos [ , -1] # Quitar primer columna
+
+mcor <- cor (gustos) # Matriz de correlación ñe
+mcor <- cor (t (gustos)) # Con transposición
+mcor
+# Ya con esto se obtienen los perfiles de expresión
+
+diag (mcor) <- 0 # Cambiar la diagonal de 1 a 0
+
+
+## Matriz de adyacencia
+
+## Pesada
+madyp <- ((1 + mcor) / 2) # Matriz de adyacencia pesada
+diag (madyp) <- 0 # Diagonales en 0
+madyp
+
+## No Pesada, dicotómica
+madynp <- ifelse (mcor > 0.5, 1, 0) # Matriz de adyacencia no pesada
+# Si el valor es mayor a 0.5, cámbialo a 1, otherwise a 0
+madynp
+
+
+## Para usar en igraph
+library (igraph)
+
+P <- graph_from_adjacency_matrix (madyp, weighted = T)
+# Objeto igraph con 26 nodos y 325 conexiones.
+
+D <- graph_from_adjacency_matrix (madynp)
+# Objeto igraph con 26 nodos y 63 conexiones.
+```
+
+#### **Layouts (D y P)**
+
+*Dibuja las redes con al menos tres layouts cada una.*
+
+```{r}
+## Red Pesada
+
+layoutP1 <- layout.fruchterman.reingold (P)
+plot (P, layout = layoutP1) # Layout 1, P
+
+layoutP2 <- layout.drl (P)
+plot (P, layout = layoutP2) # Layout 2, P
+
+layoutP3 <- layout.davidson.harel (P)
+plot (P, layout = layoutP3) # Layout 3, P
+
+
+## Red Dicotómica
+layoutD1 <- layout.circle (D)
+plot (D, layout = layoutD1) # Layout 1, D
+
+layoutD2 <- layout.auto (D)
+plot (D, layout = layoutD2) # Layout 2, D
+
+layoutD3 <- layout.gem (D)
+plot (D, layout = layoutD3) # Layout 3, D
+# El chiste era hacerla y se hizo jajsajsj
+```
+
+#### **Distribución de conectividades (D)**
+
+``` {r}
+Ddd <- degree_distribution (D) # Distribución de la gráfica
+plot (Ddd, log = "xy") # Gráfica
+
+```
+
+#### **Nodos más conectados (D)**
+
+Sólo se tomaron en cuenta los primeros 10 nodos.
+
+``` {r}
+sort (degree (D), decreasing = T) [1:10]
+# Aparezco en la portada
+```
+
+#### **Medidas de centralidad (D)**
+
+*Encontrar los nodos más importantes con al menos tres medidas de centralidad.*
+
+``` {r}
+# 1. Excentricidad
+sort (eccentricity (D), decreasing = F) [1:10]
+# Se pone en orden ascendiente porque a menor valor de excentricidad, más cerca del centro.
+
+# 2. Closeness
+sort (closeness (D), decreasing = T) [1:10]
+
+# 3. Degree
+sort (degree (D), decreasing = T) [1:10]
+```
+
+#### **Clústers (D y P)**
+
+*Obtener clústers con al menos tres métodos diferentes para cada red.*
+
+``` {r}
+## Red Dicotómica
+
+# Cluster 1, D
+WD <- cluster_walktrap (D) # Método
+table (membership (WD)) # Gpos: 11
+```
+``` {r, echo = F}
+plot (WD, D) # Gráfica
+```
+
+``` {r}
+# Cluster 2, D
+ID <- cluster_infomap (D) # Método
+table (membership (ID)) # Gpos: 5
+```
+``` {r, echo = F}
+plot (ID, D) # Gráfica
+```
+
+``` {r}
+# Cluster 3, D
+OD <- cluster_optimal (D) # Método
+table (membership (OD)) # Gpos: 7 
+```
+``` {r, echo = F}
+plot (OD, D) # Gráfica
+```
+
+``` {r}
+## Red Pesada
+
+# Cluster 1, P
+IP <- cluster_infomap (P) # Método
+table (membership (IP)) # Gpos: 1
+```
+```{r, echo = F}
+plot (IP, P) # Gráfica
+```
+
+```{r}
+# Cluster 2, P
+WP <- cluster_walktrap (P) # Método
+table (membership (WP)) # Gpos: 2
+```
+```{r, echo = F}
+plot (WP, P) # Gráfica
+```
+
+```{r}
+# Cluster 3, P
+OP <- cluster_optimal (P) # Método
+table (membership (OP)) # Gpos: 2
+```
+```{r, echo = F}
+plot (OP, P) # Gráfica
+```
+
+#### **¿Redes dirigidas? (D y P)**
+
+*Discute si las redes son dirigidas o no.*
+
+Las redes no son dirigidas en ambos casos. Esto se debe a que, al comparar los perfiles de expresión, se llega a tomar un valor "absoluto" donde los perfiles coinciden o no coinciden. Es decir, si los perfiles coinciden, se genera una conexión entre ambos. Si los perfiles no coinciden, no se genera la conexión.
+
+
+
+#### **Clicas**
+
+*¿Cómo podrías encontrar clicas, si las hay?*
+
+Sí hay clicas, en algunas partes de la red. Estas pueden identificarse visualmente, con gráficas más bonitas jaja, o con el coeficiente de clusterización, donde si su valor es 1, significa que todos los nodos de la red están conectados entre sí; es decir, existen clicas. En práctica no estoy segura de cómo hacerlo jaja.

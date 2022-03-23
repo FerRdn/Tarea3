@@ -1,0 +1,148 @@
+---
+title: "Red Booleana"
+author: "Fer Rendón"
+date: "23/03/2022"
+output: html_document
+---
+<style type = "text/css">
+body {
+font-family: Courier New;
+font-size: 11pt;
+}
+</style>
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+#### **Red de regulación transcripcional**
+
+Genera una red de regulación transcripcional con cinco nodos (A-E) y, al menos, siete interacciones regulatorias. Escoge al menos tres inhibiciones.
+
+El archivo fue generado con Nano en Bash, de nombre "boolean.txt".  
+
+
+
+
+#### **Reglas para BoolNet**
+
+Las reglas fueron generadas de la siguiente forma: 
+
+  A: C 
+  
+  B: B OR A AND NOT E 
+  
+  C: B AND NOT D 
+  
+  D: A 
+  
+  E: D AND NOT C 
+
+
+
+
+#### **Tablas de verdad**
+
+Para A: C
+
+
+| C | Condición |
+|---|-----------|
+| F |     F     |
+| T |     T     |
+
+
+
+Para B: B OR A AND NOT E
+
+
+| B | A | E | Condición |
+|---|---|---|-----------|
+| F | F | F |     F     |
+| F | F | T |     F     |
+| F | T | F |     T     |
+| T | F | F |     T     |
+| F | T | T |     F     |
+| T | F | T |     F     |
+| T | T | F |     T     |
+
+
+
+Para C: B AND NOT D
+
+
+| B | D | Condición |
+|---|---|-----------|
+| F | F |     F     |
+| F | T |     F     |
+| T | F |     T     |
+| T | T |     F     |
+
+
+
+Para D: A
+
+
+| A | Condición |
+|---|-----------|
+| F |     F     |
+| T |     T     |
+
+
+
+Para E: D AND NOT C
+
+
+| D | C | Condición |
+|---|---|-----------|
+| F | F |     F     |
+| F | T |     F     |
+| T | F |     T     |
+| T | T |     F     |
+
+
+
+#### **Atractores**
+
+Para encontrar los atractores, se requiere del uso de R (más eficiente).
+
+```{r}
+library (BoolNet) # Librería requerida
+
+boolean <- loadNetwork ("boolean.txt") # El archivo se llama "boolean"
+
+# La red se aprecia con:
+plotNetworkWiring (boolean)
+
+# Los atractores se obtienen con:
+attractors <- getAttractors (boolean)
+attractors
+```
+
+En total se tienen tres atractores.
+
+Se pueden visualizar con:
+
+``` {r}
+plotAttractors (attractors)
+```
+
+
+#### **Estado final**
+
+_¿Cuál sería el estado final más probable?_
+
+Aquel con mayor número de estados. En este caso hay tres atractores, de los cuales el atractor #3 tiene seis estados, mientras que los otros dos cuentan con uno y dos estados.
+
+
+
+#### **Estados y sus atractores**
+
+El esquema de todos los estados y los atractores posibles se puede visualizar de la siguiente manera.
+
+``` {r}
+plotStateGraph (attractors)
+```
+
+Se tienen dos atractores cíclicos (verde y rojo) y un atractor puntual (azul).
+

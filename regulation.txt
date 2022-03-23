@@ -1,0 +1,22 @@
+
+targets, factors
+
+CIS, cGMP | cADPR | InsP3
+cGMP, GC
+cADPR, ADPRc
+InsP3, PLC
+GC, NO
+ADPRc, NO
+PLC, Ca
+NO, NOS
+NOS, Ca
+Ca, CIS | CalM & !CaATPase
+CaATPase, Ca
+CalM, !Depolar
+KEV, Ca
+HATPase, !Ca
+AnionEM, Ca
+Closure, AnionEM | KOUT | KAP
+KOUT, Depolar
+KAP, Depolar
+Depolar, KEV | Ca | AnionEM & !HATPase & !KOUT

@@ -1,0 +1,259 @@
+---
+title: "Proteína-Proteína (Extra)"
+author: "Fer Rendón"
+date: "23/03/2022"
+output: html_document
+---
+<style type = "text/css">
+body {
+font-family: Courier New;
+font-size: 11pt;
+}
+</style>
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+#### **Redes de interacción proteína-proteína**
+
+Redes elegidas: 4929 (1), 148305 (2), 272624 (3).
+
+```{r}
+library (igraph)
+
+# Archivos de texto
+Pichia <- read.table ("Pichia.txt")
+Magnaporthe <- read.table ("Magnaporthe.txt")
+Legionella <- read.table ("Legionella.txt")
+
+# Se leen como data.frames
+# Es necesario convertirlo en un objeto graph para igraph
+
+# Leer como listas de adyacencia para igraph
+Pichia <- graph_from_data_frame (Pichia, directed = T)
+Magnaporthe <- graph_from_data_frame (Magnaporthe, directed = T)
+Legionella <- graph_from_data_frame (Legionella, directed = T)
+```
+
+#### **Distribución de conectividades**
+
+_Determine la distribución de conectividades._
+
+``` {r}
+degree.distribution (Pichia) # Red 1, 4929
+degree.distribution (Magnaporthe) # Red 2, 148305
+degree.distribution (Legionella) # Red 3, 272624
+```
+
+#### **Promedio de conectividades**
+
+_Calcule el promedio de conectividades de cada red._
+
+``` {r}
+## Red 1
+mean (degree (Pichia))
+
+## Red 2
+mean (degree (Magnaporthe))
+
+## Red 3
+mean (degree (Legionella))
+```
+
+#### **Densidad**
+
+_Calcule la densidad de cada red._
+
+Tengo entendido que la densidad se calcula con: (número de conexiones en la red / número de conexiones posibles (totales) de la red). Lo cual se refiere también al coeficiente de clusterización, también llamado transitividad.
+
+```{r}
+## Red 1
+transitivity (Pichia)
+
+## Red 2
+transitivity (Magnaporthe)
+
+## Red 3
+transitivity (Legionella)
+```
+
+#### **Componentes en la red**
+
+_Escribe una función que muestre el número de componentes de la red cuando se desconectan los 10 nodos más conectados._
+
+No estoy segura de a qué se refiere con "componentes". Me suena a nodos pero en todo caso, si se quitan los diez nodos más conectados, u otros 10 nodos al azar, sería el total de nodos de la red - 10.
+También sugirió usar "components ()" y esta función básicamente genera clústers. Me hace un poco más de sentido que sea el número de clústers que se generen quitando a esos diez. Así que en eso me basé.
+
+```{r}
+# comp <- function (Pichia) {
+#   components (Pichia)
+#   diezM <- sort (degree (Pichia), decreasing = T) [1:10]
+#   diezm <- delete.vertices (Pichia, c (esas diez proteínas))
+#   }
+#   return (components (diezm)) # Aquí se vería esa diferencia
+# }
+
+# Como no lo puedo estructurar bien en una función, lo haré manual jaja
+
+## Red 1
+components (Pichia) # $no de 17
+sort (degree (Pichia), decreasing = T) [1:10] # Se seleccionan los 10 nodos más conectados
+P10 <- delete.vertices (Pichia, c ("A5DHD9", "A5DA00", "A5DB75", "A5DGL8", "A5DGY3", "A5DHL9", "A5DI69", "A5DNX9", "A5DPC0", "A5DPQ5"))
+# Copias y pegas los nombres jajajaja, le agregas "," y "" a cada proteína y listo jajajajaja
+components (P10) # $no de 18
+
+## Red 2
+components (Magnaporthe) # 4no de 7
+sort (degree (Magnaporthe), decreasing = T) [1:10] # Se seleccionan los 10 nodos más conectados
+M10 <- delete.vertices (Magnaporthe, c ("A4QSX4", "A4QT78", "A4QTA3", "A4QZL9", "A4R0E5", "A4R796", "A4RDD7", "A4RFH6", "A4RHN3", "A4RK68"))
+# Copias y pegas los nombres jajajaja, le agregas "," y "" a cada proteína y listo jajajajaja
+components (M10) # $no de 7
+
+## Red 3
+components (Legionella) # $no de 13
+sort (degree (Legionella), decreasing = T) [1:10] # Se seleccionan los 10 nodos más conectados
+L10 <- delete.vertices (Legionella, c ("lpg1048", "lpg1051", "lpg1141", "lpg2981", "lpg2982", "lpg2983", "lpg2984", "lpg2985", "lpg2986", "lpg0856"))
+# Copias y pegas los nombres jajajaja, le agregas "," y "" a cada proteína y listo jajajajaja
+components (L10) # $no de 14
+```
+
+#### **Robustez**
+
+_Calcule la robustez de las redes quitando las 10 proteínas más conectadas._
+
+```{r}
+## Red 1
+mean_distance (Pichia) # Distancia promedio de 1.078
+mean_distance (P10) # Se obtiene la distancia promedio del objeto sin los 10 nodos más conectados
+# Distancia de 1, es robusta la red
+
+## Red 2
+mean_distance (Magnaporthe) # Distancia promedio de 1
+mean_distance (M10) # Distancia de 1, robusta
+
+## Red 3
+mean_distance (Legionella) # Distancia promedio de 1.351
+mean_distance (L10) # Distancia de 1, no tan robusta
+```
+
+#### **Funciones de las proteínas**
+
+_Selecciona las 10 proteínas más importantes y determina su función buscando en la literatura._
+
+```{r}
+## Red 1
+sort (degree (Pichia), decreasing = T) [1:10]
+```
+
+1. A5DHD9: Proteína de transporte; participa en la formación de vesículas desde el retículo endoplasmático.
+
+2. A5DA00: Proteína de transporte; participa en la formación de vesículas desde el retículo endoplasmático.
+
+3. A5DB75: Proteína de transporte; participa en la formación de vesículas desde el retículo endoplasmático.
+
+4. A5DGL8: Factor de inicio de la traducción 3 (eIF-3), subunidad I.
+
+5. A5DGY3: Proteína integral de membrana para formar ATPasa vacuolar en el retículo endoplasmático.
+
+6. A5DHL9: Factor de inicio de la traducción 3 (eIF-3), subunidad A.
+
+7. A5DI69: Factor de inicio de la traducción 3 (eIF-3), subunidad J.
+
+8. A5DNX9: Factor de inicio de la traducción 3 (eIF-3), subunidad G.
+
+9. A5DPC0: Proteína de transporte; participa en la formación de vesículas desde el retículo endoplasmático.
+
+10. A5DPQ5: Factor de inicio de la traducción 3 (eIF-3), subunidad C.
+
+```{r}
+## Red 2
+sort (degree (Magnaporthe), decreasing = T) [1:10]
+```
+1. A4QSX4: Factor de inicio de la traducción 3 (eIF-3), subunidad C.
+
+2. A4QT78: Factor de inicio de la traducción 3 (eIF-3), subunidad H.
+
+3. A4QTA3: Factor de inicio de la traducción 3 (eIF-3), subunidad J.
+
+4. A4QZL9: Factor de inicio de la traducción 3 (eIF-3), subunidad B.
+
+5. A4R0E5: Factor de inicio de la traducción 3 (eIF-3), subunidad F.
+
+6. A4R796: Factor de inicio de la traducción 3 (eIF-3), subunidad E.
+
+7. A4RDD7: Factor de inicio de la traducción 3 (eIF-3), subunidad I.
+
+8. A4RFH6: Factor de inicio de la traducción 3 (eIF-3), subunidad D.
+
+9. A4RHN3: Factor de inicio de la traducción 3 (eIF-3), subunidad G.
+
+10. A4RK68: Factor de inicio de la traducción 3 (eIF-3), subunidad M.
+
+Faltó diversidad jaja.
+
+```{r}
+## Red 3
+sort (degree (Legionella), decreasing = T) [1:10]
+```
+
+1. lpg1048: ATP sintasa subunidad Alfa-1.
+
+2. lpg1051: ATP sintasa subunidad A.
+
+3. lpg1141: Proteína de unión ATP en importina Espermidina/Putrescina PotA.
+
+4. lpg2981: ATP sintasa cadena Epsilon.
+
+5. lpg2982: ATP sintasa subunidad Beta.
+
+6. lpg2983: ATP sintasa cadena Gamma.
+
+7. lpg2984: ATP sintasa subunidad Alfa-2.
+
+8. lpg2985: ATP sintasa subunidad Delta.
+
+9. lpg2986: ATP sintasa subunidad B.
+
+10. lpg0856: Proteína de exportación CcmA responsable de la unión de ATP en transportador de biogénesis de citocromos tipo C.
+
+Datos obtenidos de: https://www.uniprot.org/uniprot/
+
+
+
+
+
+#### **Cytoscape**
+
+_Grafica las redes con Cytoscape y agrega un gradiente de color para alguna propiedad topológica sobre los nodos de la red._
+
+```{r}
+# Sí lo hice pero lo dejaré como comentario todo porque me marca error y ya me harté jajaja
+
+# library (RCy3)
+# Compatibilidad entre Cytoscape y igraph
+# Pero se requiere tener abierto cytoscape simultáneamente
+
+# cytoscapePing () # Establece conexión entre apps
+# >You are connected to Cytoscape!
+
+# createNetworkFromIgraph (Pichia, "Pichia")
+# Objeto de igraph y nombre en Cytoscape
+# Pichia.pdf
+# Muestra un gradiente de color según el coeficiente de clusterización
+# Más claro, más cercano a 0.
+
+# createNetworkFromIgraph (Magnaporthe, "Magnaporthe")
+# Magnaporthe.pdf
+# Muestra un gradiente de color según la excentricidad
+# Más claro, menos excentricidad
+
+# createNetworkFromIgraph (Legionella, "Legionella")
+# Legionella.pdf
+# Muestra un gradiente de color según la cantidad de las conexiones salientes
+# Más claro, menos conexiones
+```
+
+
+
+

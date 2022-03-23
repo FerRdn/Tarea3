@@ -1,0 +1,33 @@
+---
+title: "WGCNA"
+author: "Fer Rendón"
+date: "23/03/2022"
+output: html_document
+---
+<style type = "text/css">
+body {
+font-family: Courier New;
+font-size: 11pt;
+}
+</style>
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+#### **Instalación**
+
+Primero es necesario instalar la biblioteca "WGCNA".
+
+```{r}
+intall.packages ("WGCNA")
+```
+
+Después hay que llamar a la biblioteca.
+
+```{r}
+library (WGCNA)
+```
+
+a
+

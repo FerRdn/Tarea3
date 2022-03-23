@@ -1,0 +1,240 @@
+---
+title: "Red de Señalización"
+author: "Fer Rendón"
+date: "23/03/2022"
+output: html_document
+---
+<style type = "text/css">
+body {
+font-family: Courier New;
+font-size: 11pt;
+}
+</style>
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+#### **Representación verbal**
+
+_Elabora una representación verbal de la red._
+
+No estoy segura de haber entendido bien la instrucción pero...
+
+El Ca es el regulador de la red, y esta red se mantiene dinámica, ya que al activarse el Ca, solo cuenta con un inhibidor, la CaATPasa, el cual es igualmente activado por Ca. De no ser inhibido, el Ca activa a muchas otras proteínas que tienen entre una y dos conexiones con otras dos proteínas a las que generalmente activan. Por ejemplo, en la parte de arriba es una cascada que activa a dos proteínas (NOS y PLC) y estás a su vez activas otra(s) proteínas que finalmente llegan a activar a CIS, y CIS vuelve a activar al Ca. En la parte de abajo se llega a un "closure", mediante inhibiciones y activaciones de las proterínas, pero, nuevamente, solo la CaATPasa es capaz de detener todo el ciclo regulado por el Ca.
+
+
+
+#### **Reglas**
+
+_Elabora una tabla de posibles reglas de la red._
+
+Para CIS: cGMP OR cADPR OR InsP3.
+
+| cGMP | cADPR | InsP3 | Condición |
+|------|-------|-------|-----------|
+|   F  |   F   |   F   |  F        |
+|   T  |   F   |   F   |  T        |
+|   F  |   T   |   F   |  T        |
+|   F  |   F   |   T   |  T        |
+|   F  |   T   |   T   |  T        |
+|   T  |   F   |   T   |  T        |
+|   T  |   T   |   F   |  T        |
+|   T  |   T   |   T   |  T        |
+
+Para cGMP: GC
+
+| GC | Condición |
+|----|-----------|
+|  F |  F        |
+|  T |  T        |
+
+Para cADPR: ADPRc
+
+|ADPR|Condición|
+|----|---------|
+| F  | F       |
+| T  | T       |
+
+Para InsP3: PLC
+
+|PLC|Condición|
+|---|---------|
+| F |  F      |
+| T |  T      |
+
+Para GC: NO
+
+| NO | Condición |
+|----|-----------|
+| F  | F         |
+| T  | T         |
+
+Para ADPRc: NO
+
+| NO | Condición |
+|----|-----------|
+| F  | F         |
+| T  | T         |
+
+Para PLC: Ca
+
+| Ca | Condición |
+|----|-----------|
+| F  | F         |
+| T  | T         |
+
+Para NO: NOS
+
+| NOS | Condición |
+|-----|-----------|
+|  F  | F         |
+|  T  | T         |
+
+Para NOS: Ca
+
+| Ca | Condición |
+|----|-----------|
+| F  | F         |
+| T  | T         |
+
+Para Ca: CIS OR CalM AND NOT CaATPase
+
+| NO | Condición |
+|----|-----------|
+| F  | F         |
+| T  | T         |
+
+Para CaATPase: Ca
+
+| Ca | Condición |
+|----|-----------|
+| F  | F         |
+| T  | T         |
+
+Para CalM: NOT Depolar
+
+| Depolar | Condición |
+|---------|-----------|
+|   F     |    V      |
+|   V     |    F      |
+
+Para KEV: Ca
+
+| Ca | Condición |
+|----|-----------|
+| F  | F         |
+| T  | T         |
+
+Para HATPase: NOT Ca
+
+| Ca | Condición |
+|----|-----------|
+| F  | T         |
+| T  | F         |
+
+Para AnionEM: Ca
+
+| Ca | Condición |
+|----|-----------|
+| F  | F         |
+| T  | T         |
+
+Para Closure: AnionEM OR KOUT OR KAP
+
+| AnionEM | KOUT | KAP | Condición |
+|---------|------|-----|-----------|
+|    F    |  F   |  F  |   F       |
+|    F    |  F   |  T  |   T       |
+|    F    |  T   |  F  |   T       |
+|    T    |  F   |  F  |   T       |
+|    F    |  T   |  T  |   T       |
+|    T    |  T   |  F  |   T       |
+|    T    |  F   |  T  |   T       |
+|    T    |  T   |  T  |   T       |
+
+Para KOUT: Depolar
+
+| Depolar | Condición |
+|---------|-----------|
+|    F    |    F      |
+|    T    |    T      |
+
+Para KAP: Depolar
+
+| Depolar | Condición |
+|---------|-----------|
+|    F    |    F      |
+|    T    |    T      |
+
+Para Depolar: KEV OR Ca OR AnionEM AND NOT HATPase AND NOT KOUT
+
+| KEV | Ca | AnionEM | HATPase | KOUT | Condición |
+|-----|----|---------|---------|------|-----------|
+|  F  |  F |    F    |    F    |   F  |    F      |
+|  F  |  F |    F    |    F    |   T  |    F      |
+|  F  |  F |    F    |    T    |   F  |    F      |
+|  F  |  F |    T    |    F    |   F  |    T      |
+|  F  |  T |    F    |    F    |   F  |    T      |
+|  T  |  F |    F    |    F    |   F  |    T      |
+|  F  |  F |    F    |    T    |   T  |    F      |
+|  F  |  F |    T    |    F    |   T  |    F      |
+|  F  |  T |    F    |    F    |   T  |    F      |
+|  T  |  F |    F    |    F    |   T  |    F      |
+|  F  |  F |    T    |    T    |   F  |    F      |
+|  F  |  T |    F    |    T    |   F  |    F      |
+|  T  |  F |    F    |    T    |   F  |    F      |
+|  F  |  T |    T    |    F    |   F  |    T      |
+|  T  |  F |    T    |    F    |   F  |    T      |
+|  T  |  T |    F    |    F    |   F  |    T      |
+|  F  |  F |    T    |    T    |   T  |    F      |
+|  F  |  T |    F    |    T    |   T  |    F      |
+|  F  |  T |    T    |    F    |   T  |    F      |
+|  F  |  T |    T    |    T    |   F  |    F      |
+|  T  |  F |    F    |    T    |   T  |    F      |
+|  T  |  F |    T    |    F    |   T  |    F      |
+|  T  |  F |    T    |    T    |   F  |    F      |
+|  F  |  T |    T    |    T    |   T  |    F      |
+|  T  |  F |    T    |    T    |   T  |    F      |
+|  T  |  T |    F    |    T    |   T  |    F      |
+|  T  |  T |    T    |    F    |   T  |    F      |
+|  T  |  T |    T    |    T    |   F  |    F      |
+|  T  |  T |    T    |    T    |   T  |    F      |
+
+Eso estuvo mortal. Espero sean todos los estados posibles jaja.
+
+
+
+#### **Atractores**
+
+_Encuentra y discute biológicamente el significado de los atractores (Usa BoolNet)._
+
+``` {r}
+library (BoolNet)
+
+# A partir del archivo "regulation.txt" creado en base a las reglas antes mencionadas:
+
+regulation <- loadNetwork ("regulation.txt")
+
+# La red se aprecia con:
+plotNetworkWiring (regulation)
+
+# Los atractores se obtienen con:
+attractors <- getAttractors (regulation)
+attractors
+```
+``` {r, echo = F}
+plotAttractors (attractors)
+```
+
+Trate de plotear la red con sus cuencas pero R colapsa entonces solo dejé estos pequeños plots de los atractores :c
+
+
+Se tienen dos atractores, uno puntual (97.81%) y otro cíclico (2.19%).
+
+Para el primer atractor (97.81%):
+CalM y la HATPasa se mantienen apagadas, mientras el resto de las proteínas permanecen activadas. Esto se debe a que el Ca, a pesar de ser inhibido por CaATPase, es activado nuevamente por muchas otras vías. El Ca inhibe a la HATPasa y Depolar inhibe a CalM. Tanto el Ca como Depolar se mantienen activas por la interacción de muchas otras proteínas, por lo que son Hubs de esta red de regulación de cola larga.
+
+Para el segundo atractor (2.19%): 
+CalM permanece siempre apagada. Closure, KOUT, KAP y Depolar permanecen siempre prendidas. Mientras, el resto pasa de un estado apagado a prendido constantemente. CalM se encuentra siempre apagada por acción de Depolar, el cual siempre está activo. El Ca, al estar activo, mantiene a Depolar, KOUT, KAP y Closure siempre activas,aún cuando Ca no esté activo, esto se debe a que Depolar es activado por diversas vías, y este a su vez activa a una pequeña red que contiene a KOUT y KAP y que finalmente terminan en Closure. Nuevamente se demuestra a Depolar como un Hub de la red.
+
